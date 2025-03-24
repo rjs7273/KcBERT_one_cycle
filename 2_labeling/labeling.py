@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 # API 키 설정
 api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)  # 기존 openai.api_key 대신 이 방식 사용
+client = OpenAI(api_key=api_key)
 
 idx = 10
 
@@ -111,7 +111,10 @@ for i, comment in enumerate(tqdm(df['content'])):
         output = get_emotion_scores(comment)
         cleaned = clean_response(output)
         print(f"[{i}] GPT 응답:", cleaned)
-        parsed = json.loads(cleaned)
+        if isinstance(cleaned, str):
+            parsed = json.loads(cleaned)
+        else:
+            raise ValueError("GPT 응답이 문자열이 아님")
 
         fear_scores.append(parsed.get("fear_score", None))
         greed_scores.append(parsed.get("greed_score", None))
