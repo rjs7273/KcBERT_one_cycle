@@ -1,9 +1,16 @@
-from os import name
+"""
+
+크롤링한 데이터 전처리 수행하는 코드
+ - 데이터 로드 및 통합
+ - 테스트 정규화
+
+ 단, 네이버 댓글의 경우 오염도가 심하기 때문에
+ use_naver 옵션을 False로 두었음.
+
+"""
 import pandas as pd
 import re
 import emoji
-import numpy as np
-from datetime import datetime
 
 # 1. 데이터 로드 및 통합
 # use_naver : 네이버 통합할지 여부
@@ -21,7 +28,6 @@ def load_and_merge_data(naver_path: str, toss_path: str, use_naver: bool = True)
 
     return df
 
-
 # 2. 텍스트 정규화 함수
 def normalize_text(text: str) -> str:
     text = re.sub(r'<[^>]+>', '', text)  # HTML 태그 제거
@@ -35,25 +41,10 @@ def apply_normalization(df: pd.DataFrame) -> pd.DataFrame:
     df["content"] = df["content"].astype(str).apply(normalize_text)
     return df
 
-# 4. 시간 기반 가중치 계산
-def compute_time_weight(df: pd.DataFrame, tau: int = 86400) -> pd.DataFrame:
-    # 통일된 datetime 포맷 (UTC 기준)
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors='coerce')
-
-    # 변환 실패한 행 제거
-    df = df.dropna(subset=["timestamp"])
-
-    latest_time = df["timestamp"].max()
-    df["delta_seconds"] = (latest_time - df["timestamp"]).dt.total_seconds()
-    df["weight"] = np.exp(-df["delta_seconds"] / tau)
-    return df
-
-
-# 5. 전체 전처리 파이프라인 실행
+# 4. 전체 전처리 파이프라인 실행
 def preprocess_pipeline(naver_path: str, toss_path: str, tau: int = 86400, use_naver: bool = False) -> pd.DataFrame:
     df = load_and_merge_data(naver_path, toss_path, use_naver)
     df = apply_normalization(df)
-    # df = compute_time_weight(df, tau)
     return df
 
 
@@ -62,5 +53,5 @@ if __name__ == "__main__":
     toss_file = "../0_data/0_raw/toss_삼성전자.csv"
 
     df_processed = preprocess_pipeline(naver_file, toss_file)
-    df_processed.to_csv('../0_data/1_preprocess/삼성전자_preprocess_v2.csv', index=False, encoding='utf-8-sig')
+    df_processed.to_csv('../0_data/1_preprocessed/삼성전자_preprocess.csv', index=False, encoding='utf-8-sig')
 
