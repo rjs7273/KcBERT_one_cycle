@@ -53,7 +53,7 @@ def compute_time_weight(df: pd.DataFrame, tau: int = 86400) -> pd.DataFrame:
 def preprocess_pipeline(naver_path: str, toss_path: str, tau: int = 86400, use_naver: bool = False) -> pd.DataFrame:
     df = load_and_merge_data(naver_path, toss_path, use_naver)
     df = apply_normalization(df)
-    df = compute_time_weight(df, tau)
+    # df = compute_time_weight(df, tau)
     return df
 
 
@@ -62,5 +62,5 @@ if __name__ == "__main__":
     toss_file = "../0_data/0_raw/toss_삼성전자.csv"
 
     df_processed = preprocess_pipeline(naver_file, toss_file)
-    df_processed.to_csv('../0_data/1_preprocess/삼성전자_preprocess.csv', index=False, encoding='utf-8-sig')
+    df_processed.to_csv('../0_data/1_preprocess/삼성전자_preprocess_v2.csv', index=False, encoding='utf-8-sig')
 
